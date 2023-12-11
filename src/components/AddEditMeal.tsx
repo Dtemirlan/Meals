@@ -1,39 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from '../axiosApi';
+import {Meal} from '../types';
 
 interface AddEditMealProps {
     isEditing: boolean;
+    onCancelEdit: () => void;
 }
 
-const AddEditMeal: React.FC<AddEditMealProps> = ({ isEditing }) => {
+const AddEditMeal: React.FC<AddEditMealProps> = ({ isEditing, onCancelEdit }) => {
+    const navigate = useNavigate();
+    const { mealId } = useParams();
     const [time, setTime] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [calories, setCalories] = useState<number>(0);
-    const navigate = useNavigate();
-    const { mealId } = useParams();
 
     useEffect(() => {
-        if (isEditing && mealId) {
-            const fetchData = async () => {
+        const fetchData = async () => {
+            if (isEditing && mealId) {
                 try {
                     const response = await axios.get(`/meals/${mealId}`);
-                    const meal = response.data;
-                    setTime(meal.time);
-                    setDescription(meal.description);
-                    setCalories(meal.calories);
+                    const mealToEdit: Meal = response.data;
+                    setTime(mealToEdit.time);
+                    setDescription(mealToEdit.description);
+                    setCalories(mealToEdit.calories);
                 } catch (error) {
                     console.error('Error fetching meal:', error);
                 }
-            };
+            }
+        };
 
-            fetchData();
-        }
+        fetchData();
     }, [isEditing, mealId]);
 
     const handleSave = async () => {
         try {
-            if (isEditing) {
+            if (isEditing && mealId) {
                 await axios.put(`/meals/${mealId}`, { time, description, calories });
             } else {
                 await axios.post('/meals', { time, description, calories });
@@ -53,17 +55,13 @@ const AddEditMeal: React.FC<AddEditMealProps> = ({ isEditing }) => {
                     <label htmlFor="time" className="form-label">
                         Time
                     </label>
-                    <select
+                    <input
+                        type="text"
+                        className="form-control"
                         id="time"
-                        className="form-select"
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
-                    >
-                        <option value="Breakfast">Breakfast</option>
-                        <option value="Snack">Snack</option>
-                        <option value="Lunch">Lunch</option>
-                        <option value="Dinner">Dinner</option>
-                    </select>
+                    />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="description" className="form-label">
@@ -91,6 +89,9 @@ const AddEditMeal: React.FC<AddEditMealProps> = ({ isEditing }) => {
                 </div>
                 <button type="button" className="btn btn-primary" onClick={handleSave}>
                     Save
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={onCancelEdit}>
+                    Cancel
                 </button>
             </form>
         </div>

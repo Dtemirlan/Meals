@@ -1,51 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import axios from '../axiosApi';
-
-interface Meal {
-    id: string;
-    time: string;
-    description: string;
-    calories: number;
-}
+import React from 'react';
+import {Meal} from "../types.ts";
 
 interface MealListProps {
+    meals: Meal[];
     onDelete: (mealId: string) => Promise<void>;
 }
 
-const MealList: React.FC<MealListProps> = ({ onDelete }) => {
-    const [meals, setMeals] = useState<Meal[]>([]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('/meals');
-                setMeals(response.data);
-            } catch (error) {
-                console.error('Error fetching meals:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
+const MealList: React.FC<MealListProps> = ({ meals, onDelete }) => {
+    console.log('Meals in MealList:', meals);
 
     return (
-        <div>
-            <h2>Meal List</h2>
-            <ul>
-                {meals.map((meal) => (
-                    <li key={meal.id}>
-                        <div>
-                            <strong>{meal.time}</strong> - {meal.description} ({meal.calories} kcal)
-                        </div>
-                        <div>
-                            <button onClick={() => onDelete(meal.id)}>Delete</button>
-                            <a href={`/edit/${meal.id}`}>Edit</a>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-            <div>Total Calories: {meals.reduce((total, meal) => total + meal.calories, 0)}</div>
-        </div>
+        <ul>
+            {meals.map((meal) => (
+                <li key={meal.id}>
+                    <div>
+                        <strong>{meal.time}</strong>
+                        <p>{meal.description}</p>
+                        <p>Calories: {meal.calories}</p>
+                        <button onClick={() => onDelete(meal.id)}>Delete</button>
+                    </div>
+                </li>
+            ))}
+        </ul>
     );
 };
 

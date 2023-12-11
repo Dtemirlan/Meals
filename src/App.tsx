@@ -1,26 +1,43 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import MealList from '../src/components/MealList.tsx';
-import AddEditMeal from '../src/components/AddEditMeal.tsx';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import Home from './pages/Home';
+import Admin from './pages/Admin';
+import AddEditMeal from './components/AddEditMeal.tsx';
+import { Meal } from './types.ts';
 
 const App: React.FC = () => {
-    const handleDelete = async (mealId: string) => {
-        try {
-            console.log(`Deleting meal with ID: ${mealId}`);
-        } catch (error) {
-            console.error('Error deleting meal:', error);
-        }
-    };
+    const [meals, setMeals] = useState<Meal[]>([]);
+
+    useEffect(() => {
+        const fetchMeals = async () => {
+            try {
+                const response = await axios.get('/meals');
+                setMeals(response.data);
+            } catch (error) {}
+        };
+
+        fetchMeals();
+    }, []);
 
     return (
-        <div>
-            <h1>Calorie Tracker</h1>
+        <Router>
             <Routes>
-                <Route path="/" element={<MealList onDelete={handleDelete} />} />
-                <Route path="/add" element={<AddEditMeal isEditing={false} />} />
-                <Route path="/edit/:mealId" element={<AddEditMeal isEditing={true} />} />
+                <Route
+                    path="/"
+                    element={<Home meals={meals} />}
+                />
+                <Route path="/admin" element={<Admin />} />
+                <Route
+                    path="/add"
+                    element={<AddEditMeal isEditing={false} onCancelEdit={() => <Navigate to="/" />} />}
+                />
+                <Route
+                    path="/edit/:mealId"
+                    element={<AddEditMeal isEditing={true} onCancelEdit={() => <Navigate to="/" />} />}
+                />
             </Routes>
-        </div>
+        </Router>
     );
 };
 
