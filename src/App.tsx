@@ -1,28 +1,24 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import AddEditMeal from './components/AddEditMeal';
-import MealList from './components/MealList';
+import MealList from '../src/components/MealList.tsx';
+import AddEditMeal from '../src/components/AddEditMeal.tsx';
 
 const App: React.FC = () => {
-    const exampleMeals = [
-        { id: '1', time: 'Breakfast', description: 'Scrambled eggs', calories: 300 },
-        { id: '2', time: 'Lunch', description: 'Chicken salad', calories: 500 },
-    ];
-
     const handleDelete = async (mealId: string) => {
-        console.log(`Deleting meal with id: ${mealId}`);
+        try {
+            console.log(`Deleting meal with ID: ${mealId}`);
+        } catch (error) {
+            console.error('Error deleting meal:', error);
+        }
     };
 
     return (
         <div>
             <h1>Calorie Tracker</h1>
             <Routes>
-                <Route
-                    path="/"
-                    element={<MealList meals={exampleMeals} onDelete={handleDelete} />}
-                />
-                <Route path="/add" element={<AddEditMeal />} />
-                <Route path="/edit/:mealId" element={<AddEditMeal isEditing />} />
+                <Route path="/" element={<MealList onDelete={handleDelete} />} />
+                <Route path="/add" element={<AddEditMeal isEditing={false} />} />
+                <Route path="/edit/:mealId" element={<AddEditMeal isEditing={true} />} />
             </Routes>
         </div>
     );
